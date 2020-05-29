@@ -1,32 +1,37 @@
-// ConsoleApplication1.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
 #include "pch.h"
 #include <iostream>
-#include <string> 
-#include <fstream> 
+#include <fstream>
 
 using namespace std;
 
-int main()
-{
-	setlocale(LC_ALL, "Russian");
+
+ void main() {
 	ifstream fin("D:\\input.txt");
-	ofstream fout("D:\\output.txt");
-	string a;
-	while (getline(fin, a))//считываем строки с файла
-	{
-		for (int i = 0; i < a.length(); i++)
-		{
-			if ((a[i] == '/') && (a[i + 1] == '/'))//проверяем на наличие коментариев
-			{
-				a.erase(i, a.length());//удаляем коментарии
-			}
-		}
-		fout << a << endl;
+	if (!fin.is_open()) {
+		cout << "cant open file";
 	}
-	fin.close();
-	fout.close();
-	system("pause");
-	return 0;
+	else
+	{
+		fin.seekg(0, ios_base::end);
+		int size = fin.tellg();
+		fin.seekg(0, ios_base::beg);
+		char *buf = new char[size + 1];
+		fin.read(buf, size);
+		ofstream fout("D:\\output.txt", ios::trunc);
+		for (int i = 0; i < size; i++) {
+			if (buf[i] == '/' && buf[i + 1] == '/') {
+				while (buf[i + 1] != '\n') i++;
+				continue;
+			}
+			if (buf[i] == '/' && buf[i + 1] == '*') {
+				i += 2;
+				while (buf[i] != '*' || buf[i + 1] != '/') i++;
+				i += 2;
+				continue;
+			}
+			fout << buf[i];
+		}
+		fin.close();
+		fout.close();
+	}
 }
